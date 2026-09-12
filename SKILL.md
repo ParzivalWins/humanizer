@@ -8,6 +8,7 @@ description: |
 license: MIT
 metadata:
   version: "3.0.0"
+reviewed: true
 ---
 
 # Humanizer: remove AI writing patterns
