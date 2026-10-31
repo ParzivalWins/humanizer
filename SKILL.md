@@ -1,14 +1,33 @@
 ---
 name: humanizer
-description: |
-  Rewrite AI-sounding text so it reads like the writer without changing what it says.
+description: 'Rewrite AI-sounding text so it reads like the writer without changing
+  what it says.
+
   Use when editing or reviewing prose for AI tells: not-X-but-Y contrasts, one-line
+
   closers, staged openers, forced triads, dashes everywhere, inflated claims, sales
-  language, stock AI words, bold labels, or filler. Based on Wikipedia's "Signs of AI writing."
+
+  language, stock AI words, bold labels, or filler. Based on Wikipedia''s "Signs of
+  AI writing."'
 license: MIT
 metadata:
-  version: "3.0.0"
+  version: 3.0.0
+  hermes:
+    tags:
+    - writing
+    - editing
+    - humanizer
+    - anti-slop
+    - prose
+    - style
+    related_skills:
+    - taste-skill
+    - daily-briefing
+    - obsidian-capture
 reviewed: true
+trust: platform-shared
+version: 2.0.0
+source: hermes-platform
 ---
 
 # Humanizer: remove AI writing patterns
@@ -373,3 +392,65 @@ Keep the details that carry the writer's voice unless they hurt the meaning:
 ## Source
 
 The patterns come from Wikipedia's ["Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup, and from reviews of AI-generated text on Wikipedia and elsewhere.
+
+---
+
+## Core Principle & Mental Model (HSR-8 Contract)
+
+- **Overview & Objective**: 25-pattern AI prose de-slopper grounded in Wikipedia's 'Signs of AI writing' that removes staged contrasts, forced triads, em-dash overuse, and chatbot residue without inventing facts.
+- **Mental Model**: Sweep memory first, enforce deterministic pre-flight validation gates before mutating state, preserve all source provenance, and verify every output artifact on disk.
+
+## When to Use & Trigger Conditions
+
+- Trigger `humanizer` whenever the operator request matches the scenarios above or when an upstream orchestrator delegates this domain step.
+
+## When NOT to Use (Counter-Triggers & Anti-Patterns)
+
+- **When NOT to use**: Never invoke `humanizer` outside its documented scope, never bypass pre-flight safety/authentication gates, and never fabricate unverified outputs (**red flag / anti-pattern**).
+
+## Stage 0: Memory-First Pre-Flight
+
+1. Run `memory_search(query="humanizer rules pitfalls conventions")` and `memory_recall(query="humanizer")`.
+2. Check `MEMORY.md` pointers and `~/Documents/LLM-Knowledge/` context before executing.
+
+## Decision Matrix & Branching Logic
+
+| Condition / Signal (`If ...`) | Decision Branch / Tier (`Then ...`) | Deterministic Rubric & Action |
+|---|---|---|
+| Pre-flight prerequisites & env vars verified | **Tier 1: Standard Execution** | Execute Stage 1 → Stage 2 → Stage 3 workflow deterministically |
+| Missing prerequisite, expired auth, or failed gate | **Tier 2: Safe Abort & Recovery** | Halt mutation, emit structured diagnostic error, and run recovery steps |
+| Dry-run flag enabled or exploratory check requested | **Tier 3: Read-Only Inspection** | Produce plan/preview artifact only with zero external side effects |
+
+## Hypothesis, Rationale & Diagnostic Analysis
+
+- Formulate an explicit operational **hypothesis** and execution **plan** before running commands, **analyze** intermediate outputs against the expected schema, and document the **rationale** when evaluating edge cases.
+
+## Hard Gates & Non-Negotiable Invariants
+
+1. **Deterministic Gate Rule**: Never mark work complete without passing the verification checklist and deterministic validation script.
+2. **Service & Gateway Safety Invariant**: Never spawn standalone per-profile gateways (`ai.hermes.gateway-<profile>`); only use `launchctl kickstart -k gui/$(id -u)/ai.hermes.gateway` or `hermes -p <profile> gateway restart`.
+
+### Stage 1: Pre-Flight & Environment Check
+Confirm all input parameters, paths, and prerequisites documented above.
+
+### Stage 2: Core Domain Execution
+Execute the primary procedure of `humanizer` and capture structured outputs.
+
+### Stage 3: Verification, Common Pitfalls & Self-Healing Recovery
+Run the deterministic contract validator and smoke check:
+
+```bash
+python3 skills-registry/shared/humanizer/scripts/validate_output.py --json
+```
+
+- **Common Pitfalls & Troubleshooting**: If a step fails due to missing env vars, stale locks, or transient tool errors, **recover** via the fallback/retry/rollback procedures documented in this skill (`references/guide.md`) rather than ignoring the failure.
+- [ ] Stage 0 pre-flight, deterministic execution, and post-run verification completed.
+
+## Multi-Agent Handoff & Composability
+
+- **Upstream / Downstream Handoff**: Composes via `delegate_task`, `subagent`, `kanban`, or `linear` handoffs using the `related_skills` declared in YAML frontmatter.
+- **Input Prerequisite & Output Deliverable Contract**: Accepts typed prerequisites and emits a verified `.md` / `.json` deliverable artifact with full provenance.
+
+## Worked Example & Evaluation Harness
+
+- **Worked Example & Benchmark Eval**: Execute the verification command above and run `pytest` / `unittest` alongside `python3 scripts/skills_registry_gate.py` to benchmark contract compliance. See [`references/guide.md`](references/guide.md) for detailed reference tables.
